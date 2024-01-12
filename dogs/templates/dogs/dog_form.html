@@ -1,0 +1,52 @@
+{% extends 'dogs/base.html' %}
+
+{% block content %}
+
+<form method="post" class="row">
+
+    <div class="col-6">
+
+
+        <div class="card">
+            <div class="card-header">
+                {% if object %}
+                Редактирование информации
+                {% else %}
+                Создание карточки собаки
+                {% endif %}
+            </div>
+            <div class="card-body">
+                {% csrf_token %}
+                {{ form.as_p }}
+
+                <button type="submit" class="btn btn-success">
+                    {% if object %}
+                    Сохранить изменения
+                    {% else %}
+                    Добавить собаку
+                    {% endif %}
+                </button>
+
+            </div>
+        </div>
+
+
+    </div>
+    <div class="col-6">
+        <div class="card">
+            <div class="card-header">
+                Родословная
+            </div>
+            <div class="card-body">
+                {{ formset.management_form }}
+                {% for form in formset.forms %}
+                    {{ form.as_p }}
+                {% endfor %}
+            </div>
+
+        </div>
+    </div>
+
+</form>
+
+{% endblock %}
