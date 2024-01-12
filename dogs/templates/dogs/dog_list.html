@@ -3,9 +3,11 @@
 {% block content %}
 
             <div class="row">
+                {% if perms.dogs.add_dog %}
                 <div class="col-12 mb-5 ">
                     <a class="btn btn-primary" href="{% url 'dogs:dog_create' %}">Добавить собаку</a>
                 </div>
+                {% endif %}
                 {% for object in object_list %}
                 <div class="col-md-4">
                     <div class="card mb-4 box-shadow">
@@ -19,7 +21,9 @@
                         </div>
                         <div class="card-footer">
                             <a class="btn btn-link" href="{% url 'dogs:dog_update' object.pk %}">Изменить</a>
+                            {% if perms.dogs.delete_dog %}
                             <a class="btn btn-outline-danger float-right" href="{% url 'dogs:dog_delete' object.pk %}">Удалить</a>
+                            {% endif %}
                         </div>
                     </div>
                 </div>

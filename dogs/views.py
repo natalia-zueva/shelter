@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.forms import inlineformset_factory
+from django.http import Http404
 from django.shortcuts import render
 from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
@@ -38,8 +39,10 @@ class DogListView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         queryset = super().get_queryset()
         queryset = queryset.filter(
-            category_id=self.kwargs.get('pk'),
-            owner=self.request.user)
+            category_id=self.kwargs.get('pk')
+        )
+        if not self.request.user.is_staff:
+            queryset = queryset.filter(owner=self.request.user)
         return queryset
 
     def get_context_data(self, *args, **kwargs):
@@ -60,9 +63,10 @@ class DogListView(LoginRequiredMixin, ListView):
 #     return render(request, 'dogs/dog_list.html', context)
 
 
-class DogCreateView(LoginRequiredMixin, CreateView):
+class DogCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = Dog
     form_class = DogForm
+    permission_required = 'dogs.add_dog'
     # fields = ('name', 'category')
     success_url = reverse_lazy('dogs:categories')
 
@@ -79,6 +83,12 @@ class DogUpdateView(LoginRequiredMixin, UpdateView):
     form_class = DogForm
     # fields = ('name', 'category')
     # success_url = reverse_lazy('dogs:categories')
+
+    def get_object(self, queryset=None):
+        self.object = super().get_object(queryset)
+        if self.object.owner != self.request.user and not self.request.user.is_staff:
+            raise Http404
+        return self.object
 
     def get_success_url(self):
         return reverse('dogs:dog_update', args=[self.kwargs.get('pk')])
@@ -104,8 +114,9 @@ class DogUpdateView(LoginRequiredMixin, UpdateView):
         return super().form_valid(form)
 
 
-class DogDeleteView(LoginRequiredMixin, DeleteView):
+class DogDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     model = Dog
+    permission_required = 'dogs.delete_dog'
     success_url = reverse_lazy('dogs:categories')
 
 

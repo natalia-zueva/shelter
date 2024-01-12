@@ -23,6 +23,8 @@ class Dog(models.Model):
     photo = models.ImageField(upload_to='dogs/', **NULLABLE, verbose_name='Фото')
     birth_day = models.DateField(**NULLABLE, verbose_name='Дата рождения')
 
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, **NULLABLE, verbose_name='владелец')
+
     def __str__(self):
         return f'{self.name}, {self.category}'
 
@@ -36,8 +38,6 @@ class Parent(models.Model):
     name = models.CharField(max_length=250, verbose_name='кличка')
     category = models.ForeignKey(Category, on_delete=models.CASCADE, verbose_name='порода')
     birth_day = models.DateField(**NULLABLE, verbose_name='дата рождения')
-
-    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, **NULLABLE, verbose_name='владелец')
 
     def __str__(self):
         return f'{self.name}, {self.category}'
